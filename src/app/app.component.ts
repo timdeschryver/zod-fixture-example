@@ -1,10 +1,18 @@
 import { Component } from '@angular/core';
+import { AsyncPipe, JsonPipe } from "@angular/common";
+import { AppService } from "./app.service";
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  standalone: true,
+  imports: [AsyncPipe, JsonPipe],
+  template: `
+    <pre>{{ customers$ | async | json}}</pre>
+  `
 })
 export class AppComponent {
-  title = 'zod-fixture-example';
+  customers$ = this.appService.getCustomers()
+
+  constructor(private readonly appService: AppService) {
+  }
 }

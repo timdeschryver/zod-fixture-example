@@ -1,31 +1,25 @@
-import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import {AppComponent} from "./app.component";
+import {render, screen} from "@testing-library/angular";
+import {AppService} from "./app.service";
+import {createFixture} from "zod-fixture";
+import {z} from "zod";
+import {CustomerSchema} from "../models/customer";
+import {of} from "rxjs";
 
-describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [
-        AppComponent
-      ],
-    }).compileComponents();
-  });
+describe(AppComponent.name, () => {
+  it('renders a collection of customers', async () => {
+    const customers = createFixture(z.array(CustomerSchema));
+    await render(AppComponent, {
+      providers: [
+        {
+          provide: AppService,
+          useValue: {
+            getCustomers: () => of(customers)
+          }
+        }
+      ]
+    });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
-
-  it(`should have as title 'zod-fixture-example'`, () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app.title).toEqual('zod-fixture-example');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('zod-fixture-example app is running!');
-  });
-});
+    expect(await screen.findByText(customers[0].name, {exact: false})).toBeTruthy()
+  })
+})
